@@ -9,29 +9,35 @@
 // You should rename this file "SkipList.java" and remove this comment before
 // submitting.
 
-class SkipListNode
+class SkipListNode<T>
 {
-    SkipListNode( height: number )
+    nextNode: Array<SkipListNode<T>>;
+    data: T;
+
+    constructor( data: T, height?: number )
     {
-        /* This constructor creates a new node with the specified height, 
-        which will be greater than zero. Initially, all of the node’s 
-        nextreferences should be initialized to null. 
-        This constructor will be particularly useful when creating a head node,
-        which does not store anything meaningful in its data field. 
-        This constructor may be useful to you in other ways as well, 
-        depending how you choose to implement certain of your skip list methods */;
+        if( height == undefined ) 
+        {
+            /* This constructor creates a new node with the specified height, 
+            which will be greater than zero. Initially, all of the node’s 
+            nextreferences should be initialized to null. 
+            This constructor will be particularly useful when creating a head node,
+            which does not store Tthing meaningful in its data field. 
+            This constructor may be useful to you in other ways as well, 
+            depending how you choose to implement certain of your skip list methods */;
+        }
+        else
+        {
+            /* This constructor creates a new node with the specified height, 
+            which will be greater than zero, and initializes the node’s value to data.
+            Initially, all of the node’s next references should be initialized to null.  */
+        }
     }
 
-    SkipListNode( data: any, height: number )
+    // An O(1) method that returns the value stored at this node.
+    public value(): T 
     {
-        /* This constructor creates a new node with the specified height, 
-        which will be greater than zero, and initializes the node’s value to data.
-        Initially, all of the node’s next references should be initialized to null.  */
-    }
-
-    public value(): any 
-    {
-        /* An O(1) method that returns the value stored at this node. */
+        return this.data;
     }
 
     public height(): number
@@ -40,10 +46,10 @@ class SkipListNode
 
         For example, if a node has three references (numbered 0 through 2),
         the height of that node is 3 (even if some of those references are null). */
-
+        return 0;
     }
 
-    public next( level: number ): SkipListNode<any>
+    public next( level: number ): SkipListNode<T>
     {
         /* An O(1) method that returns a reference to the next node in the skip list
         at this particular level. Levels are numbered 0 through (height – 1), 
@@ -51,10 +57,11 @@ class SkipListNode
         
         If level is less than 0 or greater than (height – 1), 
         this method should return null */
+        return null;
     }
 
     // Set the next reference at the given level within this node to node
-    public setNext( level: number, node: Node<any>): void
+    public setNext( level: number, node: SkipListNode<T>): void
     {
         //TODO
     }
@@ -84,34 +91,29 @@ class SkipListNode
     }
 }
 
-public class SkipList
+public class SkipList<T>
 {
-    SkipList()
+    SkipList( height?: number )
     {
-
-    }
-
-    SkipList( height: number )
-    {
-
+        ;
     }
 
     public size(): number
     {
-
+        return 0;
     }
 
     public height(): number
     {
-
+        return 0;
     }
 
-    public head(): SkipListNode<any>
+    public head(): SkipListNode<T>
     {
-
+        return null;
     }
 
-    public insert( data: any ): void
+    public insert( data: T, height?: number): void
     {
         /* Insert data into the skip list with an expected (average-case) runtime of O(log n).
         If the value being inserted already appears in the skip list, this new copy should 
@@ -144,34 +146,29 @@ public class SkipList
          height distribution of nodes in a skip list. */
     }
 
-    public insert( data: any, height: number): void
+    public delete( data: T): void
     {
 
     }
 
-    public delete( data: any): void
+    public contains( data: T ): boolean
     {
-
+        return false;
     }
 
-    public contains( data: any ): boolean
+    public get( data: T): SkipListNode<T>
     {
-
-    }
-
-    public get( data: any): SkipListNode<any>
-    {
-
+        return void;
     }
 
     private static getMaxHeight( n: number ): number
     {
-
+        return 0;
     }
 
     private static generateRandomHeight( maxHeight: number ): number
     {
-
+        return 0;
     }
 
     private growSkipList(): void
