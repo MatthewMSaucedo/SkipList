@@ -74,7 +74,7 @@ class SkipListNode<T>
 		// 1 or 0 is randomly generated, giving a 50% probability
 		if( probability == 1 )
 		{
-			this.nextNode.push(null);
+			this.nextNode.push( null );
 		}
     }
 
@@ -92,6 +92,7 @@ class SkipListNode<T>
 class SkipList<T>
 {
     headNode: SkipListNode<T>;
+    numNodes: number = 0;
 
     SkipList( height?: number )
     {
@@ -116,14 +117,7 @@ class SkipList<T>
     // return size of the Skip List (excluding the head node)
     public size(): number
     {
-        let numNodes: number = 0;
-
-        for( let nodeIterator = this.headNode.next(0); nodeIterator != null; nodeIterator = nodeIterator.next(0) )
-        {
-            numNodes++;
-        }
-
-        return numNodes;
+        return this.numNodes;
     }
 
     // return the height of the skiplist
@@ -167,9 +161,13 @@ class SkipList<T>
          
          Test Cases #1 through #3 demonstrate how the insert() method should affect the height of 
          a skiplist under a variety of circumstances. Test Cases #4 and #5 speak to the expected 
-         height distribution of nodes in a skip list. */
+         height distribution of nodes in a skip list. 
+         
+         update size member
+         */
     }
 
+    // update size member
     public delete( data: T): void
     {
 

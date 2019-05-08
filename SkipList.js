@@ -60,6 +60,7 @@ var SkipListNode = /** @class */ (function () {
 }());
 var SkipList = /** @class */ (function () {
     function SkipList() {
+        this.numNodes = 0;
     }
     SkipList.prototype.SkipList = function (height) {
         // create head node with prescribed height
@@ -77,11 +78,7 @@ var SkipList = /** @class */ (function () {
     };
     // return size of the Skip List (excluding the head node)
     SkipList.prototype.size = function () {
-        var numNodes = 0;
-        for (var nodeIterator = this.headNode.next(0); nodeIterator != null; nodeIterator = nodeIterator.next(0)) {
-            numNodes++;
-        }
-        return numNodes;
+        return this.numNodes;
     };
     // return the height of the skiplist
     SkipList.prototype.height = function () {
@@ -119,8 +116,12 @@ var SkipList = /** @class */ (function () {
          
          Test Cases #1 through #3 demonstrate how the insert() method should affect the height of
          a skiplist under a variety of circumstances. Test Cases #4 and #5 speak to the expected
-         height distribution of nodes in a skip list. */
+         height distribution of nodes in a skip list.
+         
+         update size member
+         */
     };
+    // update size member
     SkipList.prototype["delete"] = function (data) {
     };
     SkipList.prototype.contains = function (data) {
