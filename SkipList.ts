@@ -12,7 +12,7 @@ class SkipListNode<T>
         this.nextNode = new Array<SkipListNode<T>>();
 		
         // add amount of null references equivalent to height
-        for( let i: number = 0; i < height; i++ )
+        for( let i = 0; i < height; i++ )
         {
             this.nextNode.push( null );
         }
@@ -82,7 +82,7 @@ class SkipListNode<T>
     // this node’s height has been reduced to the value given in the height parameter.
     public trim( height: number ): void
     {
-        for( let i: number = this.height(); i > height; i--  )
+        for( let i = this.height(); i > height; i--  )
         {
             this.nextNode.pop();
         }
@@ -91,24 +91,50 @@ class SkipListNode<T>
 
 class SkipList<T>
 {
+    headNode: SkipListNode<T>;
+
     SkipList( height?: number )
     {
-        ;
+        // create head node with prescribed height
+        if( height != undefined )
+        {
+            // ensure valid height
+            if( height < 0 )
+            {
+                this.headNode = new SkipListNode<T>( 0 );
+            }
+            else
+            {
+                this.headNode = new SkipListNode<T>( height );
+            }
+        }
+
+        // create head of list with height of 0
+        this.headNode = new SkipListNode<T>( 0 );
     }
 
+    // return size of the Skip List (excluding the head node)
     public size(): number
     {
-        return 0;
+        let numNodes: number = 0;
+
+        for( let nodeIterator = this.headNode.next(0); nodeIterator != null; nodeIterator = nodeIterator.next(0) )
+        {
+            numNodes++;
+        }
+
+        return numNodes;
     }
 
+    // return the height of the skiplist
     public height(): number
     {
-        return 0;
+        return this.headNode.height();
     }
 
     public head(): SkipListNode<T>
     {
-        return null;
+        return this.headNode;
     }
 
     public insert( data: T, height?: number): void
@@ -159,23 +185,66 @@ class SkipList<T>
         return null;
     }
 
-    private static getMaxHeight( n: number ): number
+    public getMaxHeight( n: number ): number
     {
         return 0;
     }
 
-    private static generateRandomHeight( maxHeight: number ): number
+    public generateRandomHeight( maxHeight: number ): number
     {
-        return 0;
+       return this.generateRandomHeightHelper( maxHeight, 1 );
     }
 
-    private growSkipList(): void
+    public generateRandomHeightHelper( maxHeight: number, height: number ): number
+    {
+        /* Returns 1 with 50% probability, 2 with 25% probability, 3 with 12.5% probability,
+        and so on, without exceeding maxHeight */
+		
+		if ( height == maxHeight)
+		{
+			return height;
+		}
+		
+		// 1/2 probability that function will be called again with increased height
+		if ( this.randomIntFromInterval( 1, 2 ) == 1)
+		{
+			height = this.generateRandomHeightHelper(maxHeight, height + 1);
+		}
+		
+		// this returns result of all recursive calls.
+		return height;
+    }
+
+    public growSkipList(): void
     {
 
     }
 
-    private trimSkipList(): void
+    public trimSkipList(): void
     {
 
     }
+
+    // returns random number from min to max, inclusive
+    public randomIntFromInterval( min: number , max: number ): number
+    {
+        return Math.floor( Math.random() * (max-min+1) + min );
+    }
+}
+
+
+// MAIN
+let exampleNode: SkipListNode<number> = new SkipListNode<number>( 4, 7 );
+let exampleSkipList: SkipList<number> = new SkipList<number>();
+
+console.log("The exampleNode has a height of " 
+    + exampleNode.height() + ", and stores this data: " + exampleNode.value() );
+
+exampleNode.trim(2);
+console.log("The exampleNode has a height of " 
+    + exampleNode.height() + ", and stores this data: " + exampleNode.value() );
+
+for( let i = 0; i < 50; i++ )
+{
+    console.log( exampleSkipList.generateRandomHeight( 5 ) );
 }
