@@ -167,7 +167,7 @@ class SkipList<T>
          */
     }
 
-    // update size member
+    // Update size member!!!
     public delete( data: T): void
     {
 
@@ -183,9 +183,15 @@ class SkipList<T>
         return null;
     }
 
+    //  Returns the max height of a skip list with n nodes.
     public getMaxHeight( n: number ): number
     {
-        return 0;
+        if( n == 1 )
+		{
+			return 1;
+		}
+		
+		return Math.ceil( Math.log(n) / Math.log(2) );
     }
 
     public generateRandomHeight( maxHeight: number ): number
