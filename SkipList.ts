@@ -1,97 +1,95 @@
-// This is a basic template showing how to set up your Node and SkipList classes
-// to be in the same file. For my test cases to work properly, you will need to
-// implement your Node class here, in this file, outside of the SkipList class.
-//
-// Note: You will need to modify these class declarations to make your Node
-// and SkipList containers generic and capable of holding any type of Comparable
-// object.
-//
-// You should rename this file "SkipList.java" and remove this comment before
-// submitting.
+// TypeScript Probabilistic SkipList
 
 class SkipListNode<T>
 {
     nextNode: Array<SkipListNode<T>>;
     data: T;
 
-    constructor( data: T, height?: number )
-    {
-        if( height == undefined ) 
+    // This constructor creates a new node with the specified height, data.
+    constructor( height: number, data?: T )
+    {   
+        // create empty nextNode array
+        this.nextNode = new Array<SkipListNode<T>>();
+		
+        // add amount of null references equivalent to height
+        for( let i: number = 0; i < height; i++ )
         {
-            /* This constructor creates a new node with the specified height, 
-            which will be greater than zero. Initially, all of the node’s 
-            nextreferences should be initialized to null. 
-            This constructor will be particularly useful when creating a head node,
-            which does not store Tthing meaningful in its data field. 
-            This constructor may be useful to you in other ways as well, 
-            depending how you choose to implement certain of your skip list methods */;
+            this.nextNode.push( null );
         }
-        else
+
+        // add data to node 
+        if( data != undefined ) 
         {
-            /* This constructor creates a new node with the specified height, 
-            which will be greater than zero, and initializes the node’s value to data.
-            Initially, all of the node’s next references should be initialized to null.  */
+            this.data = data;
         }
     }
 
-    // An O(1) method that returns the value stored at this node.
+    // returns the value stored at this node.
     public value(): T 
     {
         return this.data;
     }
 
+    // returns the height of this node.
     public height(): number
     {
-        /* An O(1) method that returns the height of this node.
-
-        For example, if a node has three references (numbered 0 through 2),
-        the height of that node is 3 (even if some of those references are null). */
-        return 0;
+        return this.nextNode.length;
     }
 
+    // returns reference to next node at the given level.
     public next( level: number ): SkipListNode<T>
     {
-        /* An O(1) method that returns a reference to the next node in the skip list
-        at this particular level. Levels are numbered 0 through (height – 1), 
-        from bottom to top.
+        // attempt to access level that DNE returns null
+        if( level < 0 || level > this.nextNode.length - 1 )
+        {
+            return null;
+        }
         
-        If level is less than 0 or greater than (height – 1), 
-        this method should return null */
-        return null;
+        return this.nextNode[level];
     }
 
-    // Set the next reference at the given level within this node to node
+    // Set the next reference at the given level within this node to node.
     public setNext( level: number, node: SkipListNode<T>): void
     {
-        //TODO
+        this.nextNode[level] = node;
     }
-
+    
+    // Grow this node by exactly one level.
     public grow(): void
     {
-        /* Grow this node by exactly one level. 
-        (I.e., add a null reference to the top of its tower of nextreferences). 
-        This is useful for forcing the skip list’s head node to grow 
-        when inserting into the skip list causes the list’s maximum height to increase */
+        this.nextNode.push( null );
+    }
+    
+    // returns random number from min to max, inclusive
+    public randomIntFromInterval( min: number , max: number ): number
+    {
+        return Math.floor( Math.random() * (max-min+1) + min );
     }
 
+    // Grow this node by exactly one level with a probability of 50%.
     public maybeGrow(): void
     {
-        /* Grow this node by exactly one level with a probability of 50%. 
-        (I.e., add a null reference to the top of its tower of next references). 
-        This is useful for when inserting into the skip list causes the list’s maximum 
-        height to increase. */
+        let probability: number = this.randomIntFromInterval( 0, 1 );  
+		
+		// 1 or 0 is randomly generated, giving a 50% probability
+		if( probability == 1 )
+		{
+			this.nextNode.push(null);
+		}
     }
 
+    // Remove references from the top of this node’s tower of next references until 
+    // this node’s height has been reduced to the value given in the height parameter.
     public trim( height: number ): void
     {
-        /* Remove references from the top of this node’s tower of next references until 
-        this node’s height has been reduced to the value given in the height parameter. 
-        This is useful for when deleting from the skip list causes the list’s maximum 
-        height to decrease. */
+        for( let i: number = this.height(); i > height; i--  )
+        {
+            this.nextNode.pop();
+        }
     }
 }
 
-public class SkipList<T>
+class SkipList<T>
 {
     SkipList( height?: number )
     {
@@ -156,9 +154,9 @@ public class SkipList<T>
         return false;
     }
 
-    public get( data: T): SkipListNode<T>
+    public get( data: T ): SkipListNode<T>
     {
-        return void;
+        return null;
     }
 
     private static getMaxHeight( n: number ): number
