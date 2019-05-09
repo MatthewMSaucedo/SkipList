@@ -63,23 +63,23 @@ var SkipList = /** @class */ (function () {
         // create head node with prescribed height
         if (height != undefined) {
             // ensure valid height
-            if (height < 0) {
-                this.headNode = new SkipListNode(0);
+            if (height < 1) {
+                this.headNode = new SkipListNode(1);
             }
             else {
                 this.headNode = new SkipListNode(height);
             }
         }
-        // create head node with height of 0
+        // create head node with height of 1
         else {
-            this.headNode = new SkipListNode(0);
+            this.headNode = new SkipListNode(1);
         }
-        // initialize the size of the list to zero
-        this.numNodes = 0;
+        // initialize the node count
+        this.numNodes = 1;
     }
     // return size of the Skip List (excluding the head node)
     SkipList.prototype.size = function () {
-        return this.numNodes;
+        return this.numNodes - 1;
     };
     // return the height of the skiplist
     SkipList.prototype.height = function () {
@@ -89,29 +89,29 @@ var SkipList = /** @class */ (function () {
         return this.headNode;
     };
     SkipList.prototype.insert = function (data, height) {
-        var currentHeight = this.headNode.height();
+        var currentLevel = this.height() - 1;
         var currentNode = this.headNode;
         var nodesOutdatedRefs = new Array();
         var newNode;
-        while (currentHeight > 0) {
-            // check next node at current height for null
-            if (currentNode.nextNode[currentHeight] == null) {
+        while (currentLevel >= 0) {
+            // check next node at current level for null
+            if (currentNode.nextNode[currentLevel] == null) {
                 // current node may need ref at this level updated
                 nodesOutdatedRefs.push(currentNode);
                 // dropdown level
-                currentHeight--;
+                currentLevel--;
             }
-            // check next node at current height for lesser value
-            else if (currentNode.nextNode[currentHeight].data < data) {
+            // check next node at current level for lesser value
+            else if (currentNode.nextNode[currentLevel].data < data) {
                 // advance to the next node at this level
-                currentNode = currentNode.nextNode[currentHeight];
+                currentNode = currentNode.nextNode[currentLevel];
             }
             // next node was greater or equal to value
             else {
                 // current node may need ref at this level updated
                 nodesOutdatedRefs.push(currentNode);
                 // dropdown level
-                currentHeight--;
+                currentLevel--;
             }
         }
         // check if there was a prescribed height
@@ -121,20 +121,30 @@ var SkipList = /** @class */ (function () {
         }
         else {
             // add node of randomized height
-            var maxHeight = Math.max(this.getMaxHeight(this.numNodes), this.head().nextNode.length);
+            var maxHeight = Math.max(this.getMaxHeight(this.numNodes), this.height());
             newNode = new SkipListNode(this.generateRandomHeight(maxHeight), data);
         }
+        /*
+        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
+        // you must increase the overall height of the skip list.
+        if( Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height() )
+        {
+            this.growSkipList();
+        }
+        */
         // reverse the outdated refs array so that their level needing to be updated
         // corresponds to their index in the array
         nodesOutdatedRefs = nodesOutdatedRefs.reverse();
+        console.log(" yeet ");
         // update references of inserted node and outdated nodes
-        for (var i = newNode.height(); i >= 0; i++) {
+        for (var i = newNode.height() - 1; i >= 0; i++) {
             // add reference to newNode
             newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = newNode;
         }
         this.numNodes++;
+        console.log(" yeet yizzle ");
     };
     // Update size member!!!
     SkipList.prototype["delete"] = function (data) {

@@ -100,29 +100,29 @@ class SkipList<T>
         if( height != undefined )
         {
             // ensure valid height
-            if( height < 0 )
+            if( height < 1 )
             {
-                this.headNode = new SkipListNode<T>( 0 );
+                this.headNode = new SkipListNode<T>( 1 );
             }
             else
             {
                 this.headNode = new SkipListNode<T>( height );
             }
         }
-        // create head node with height of 0
+        // create head node with height of 1
         else
         {
-            this.headNode = new SkipListNode<T>( 0 );
+            this.headNode = new SkipListNode<T>( 1 );
         }
 
-        // initialize the size of the list to zero
-        this.numNodes = 0;
+        // initialize the node count
+        this.numNodes = 1;
     }
 
     // return size of the Skip List (excluding the head node)
     public size(): number
     {
-        return this.numNodes;
+        return this.numNodes - 1;
     }
 
     // return the height of the skiplist
@@ -138,27 +138,27 @@ class SkipList<T>
 
     public insert( data: T, height?: number): void
     {
-        let currentHeight: number = this.headNode.height();
+        let currentLevel: number = this.height() - 1;
         let currentNode: SkipListNode<T> = this.headNode;
         let nodesOutdatedRefs: Array<SkipListNode<T>> = new Array<SkipListNode<T>>();
         let newNode: SkipListNode<T>;
 
-        while( currentHeight > 0 )
+        while( currentLevel >= 0 )
         {
-            // check next node at current height for null
-            if( currentNode.nextNode[currentHeight] == null ) 
+             // check next node at current level for null
+            if( currentNode.nextNode[currentLevel] == null ) 
             {
-                // current node may need ref at this level updated
+                 // current node may need ref at this level updated
                 nodesOutdatedRefs.push( currentNode );
 
                 // dropdown level
-                currentHeight--;
+                currentLevel--;
             }
-            // check next node at current height for lesser value
-            else if( currentNode.nextNode[currentHeight].data < data )
+            // check next node at current level for lesser value
+            else if( currentNode.nextNode[currentLevel].data < data )
             {
                 // advance to the next node at this level
-                currentNode = currentNode.nextNode[currentHeight];
+                currentNode = currentNode.nextNode[currentLevel];
             }
             // next node was greater or equal to value
             else
@@ -167,7 +167,7 @@ class SkipList<T>
                 nodesOutdatedRefs.push( currentNode );
 
                 // dropdown level
-                currentHeight--;
+                currentLevel--;
             }
         }
 
@@ -180,16 +180,23 @@ class SkipList<T>
         else
         {
             // add node of randomized height
-            let maxHeight = Math.max( this.getMaxHeight( this.numNodes ), this.head().nextNode.length );
+            let maxHeight = Math.max( this.getMaxHeight( this.numNodes ), this.height() );
             newNode = new SkipListNode<T>( this.generateRandomHeight( maxHeight ), data);
         }
-        
+        /*
+        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
+        // you must increase the overall height of the skip list. 
+        if( Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height() )
+        {
+            this.growSkipList();
+        }
+        */
         // reverse the outdated refs array so that their level needing to be updated
         // corresponds to their index in the array
         nodesOutdatedRefs = nodesOutdatedRefs.reverse();
-                
+        
         // update references of inserted node and outdated nodes
-        for( let i = newNode.height(); i >= 0; i++ )
+        for( let i = newNode.height() - 1; i >= 0; i++ )
         {
             // add reference to newNode
             newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
