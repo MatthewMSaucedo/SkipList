@@ -59,10 +59,7 @@ var SkipListNode = /** @class */ (function () {
     return SkipListNode;
 }());
 var SkipList = /** @class */ (function () {
-    function SkipList() {
-        this.numNodes = 0;
-    }
-    SkipList.prototype.SkipList = function (height) {
+    function SkipList(height) {
         // create head node with prescribed height
         if (height != undefined) {
             // ensure valid height
@@ -73,9 +70,13 @@ var SkipList = /** @class */ (function () {
                 this.headNode = new SkipListNode(height);
             }
         }
-        // create head of list with height of 0
-        this.headNode = new SkipListNode(0);
-    };
+        // create head node with height of 0
+        else {
+            this.headNode = new SkipListNode(0);
+        }
+        // initialize the size of the list to zero
+        this.numNodes = 0;
+    }
     // return size of the Skip List (excluding the head node)
     SkipList.prototype.size = function () {
         return this.numNodes;
@@ -88,40 +89,54 @@ var SkipList = /** @class */ (function () {
         return this.headNode;
     };
     SkipList.prototype.insert = function (data, height) {
-        /* Insert data into the skip list with an expected (average-case) runtime of O(log n).
-        If the value being inserted already appears in the skip list, this new copy should
-        be inserted before the first occurrence of that value in the skip list.
-        (See test cases #14 and #15 for further clarification on the order in which
-        duplicate values should be inserted.)
-            
-        You will have to generate a random height for this node in a way that respects both
-        the maximum height of the skip list and the expected distribution of node heights.
-        (I.e., there shouldbe a 50% chance that the new node has a height of 1, a 25% chance
-        that it has a height of 2, andso on, up to the maximum height allowable for this skip
-        list.)
-        
-        The maximum possible height of this new node should be either ⌈ log2(n) ⌉ or the current
-        height of the skip list – whichever is greater. (Recall that the height of the skip list
-        can exceed ⌈ log2(n) ⌉ if the list was initialized using the second SkipList constructor
-        described above.)
-        
-        If inserting this node causes ⌈ log2(n) ⌉ to exceed the skip list’s current height, you must
-        increase the overall height of the skip list. Recall that our procedure for growing the
-        skip list is as follows:
-            (1) the height of the head node increases by 1, and
-            (2) each node whose height was maxed out now has a 50% chance of seeing its height increased by 1.
-        For example, if the height of the skip list is increasing from 4 to 5, the head node must
-        grow to height 5, and each other node of height 4 has (independently) a 50% chance of growing
-         to height 5.
-         
-         Test Cases #1 through #3 demonstrate how the insert() method should affect the height of
-         a skiplist under a variety of circumstances. Test Cases #4 and #5 speak to the expected
-         height distribution of nodes in a skip list.
-         
-         update size member
-         */
+        var currentHeight = this.headNode.height();
+        var currentNode = this.headNode;
+        var nodesOutdatedRefs = new Array();
+        var newNode;
+        while (currentHeight > 0) {
+            // check next node at current height for null
+            if (currentNode.nextNode[currentHeight] == null) {
+                // current node may need ref at this level updated
+                nodesOutdatedRefs.push(currentNode);
+                // dropdown level
+                currentHeight--;
+            }
+            // check next node at current height for lesser value
+            else if (currentNode.nextNode[currentHeight].data < data) {
+                // advance to the next node at this level
+                currentNode = currentNode.nextNode[currentHeight];
+            }
+            // next node was greater or equal to value
+            else {
+                // current node may need ref at this level updated
+                nodesOutdatedRefs.push(currentNode);
+                // dropdown level
+                currentHeight--;
+            }
+        }
+        // check if there was a prescribed height
+        if (height != undefined) {
+            // add node of specified height
+            newNode = new SkipListNode(height, data);
+        }
+        else {
+            // add node of randomized height
+            var maxHeight = Math.max(this.getMaxHeight(this.numNodes), this.head().nextNode.length);
+            newNode = new SkipListNode(this.generateRandomHeight(maxHeight), data);
+        }
+        // reverse the outdated refs array so that their level needing to be updated
+        // corresponds to their index in the array
+        nodesOutdatedRefs = nodesOutdatedRefs.reverse();
+        // update references of inserted node and outdated nodes
+        for (var i = newNode.height(); i >= 0; i++) {
+            // add reference to newNode
+            newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
+            // update reference of outdated Node
+            nodesOutdatedRefs[i].nextNode[i] = newNode;
+        }
+        this.numNodes++;
     };
-    // update size member
+    // Update size member!!!
     SkipList.prototype["delete"] = function (data) {
     };
     SkipList.prototype.contains = function (data) {
@@ -130,8 +145,12 @@ var SkipList = /** @class */ (function () {
     SkipList.prototype.get = function (data) {
         return null;
     };
+    //  Returns the max height of a skip list with n nodes.
     SkipList.prototype.getMaxHeight = function (n) {
-        return 0;
+        if (n == 1) {
+            return 1;
+        }
+        return Math.ceil(Math.log(n) / Math.log(2));
     };
     SkipList.prototype.generateRandomHeight = function (maxHeight) {
         return this.generateRandomHeightHelper(maxHeight, 1);
@@ -164,9 +183,7 @@ var exampleNode = new SkipListNode(4, 7);
 var exampleSkipList = new SkipList();
 console.log("The exampleNode has a height of "
     + exampleNode.height() + ", and stores this data: " + exampleNode.value());
-exampleNode.trim(2);
-console.log("The exampleNode has a height of "
-    + exampleNode.height() + ", and stores this data: " + exampleNode.value());
-for (var i = 0; i < 50; i++) {
-    console.log(exampleSkipList.generateRandomHeight(5));
-}
+exampleSkipList.insert(5);
+exampleSkipList.insert(7);
+exampleSkipList.insert(6);
+console.log(exampleSkipList.size());
