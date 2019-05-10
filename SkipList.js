@@ -98,19 +98,20 @@ var SkipList = /** @class */ (function () {
         if (Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height()) {
             this.growSkipList();
         }
+        // set current search level to maxmimum level available
         currentLevel = this.height() - 1;
         while (currentLevel >= 0) {
             // check next node at current level for null
-            if (currentNode.nextNode[currentLevel] == null) {
+            if (currentNode.next(currentLevel) == null) {
                 // current node may need ref at this level updated
                 nodesOutdatedRefs.push(currentNode);
                 // dropdown level
                 currentLevel--;
             }
             // check next node at current level for lesser value
-            else if (currentNode.nextNode[currentLevel].data < data) {
+            else if (currentNode.next(currentLevel).data < data) {
                 // advance to the next node at this level
-                currentNode = currentNode.nextNode[currentLevel];
+                currentNode = currentNode.next(currentLevel);
             }
             // next node was greater or equal to value
             else {
@@ -136,7 +137,7 @@ var SkipList = /** @class */ (function () {
         // update references of inserted node and outdated nodes
         for (var i = newNode.height() - 1; i >= 0; i--) {
             // add reference to newNode
-            newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
+            newNode.nextNode[i] = nodesOutdatedRefs[i].next(i);
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = newNode;
         }
@@ -144,13 +145,38 @@ var SkipList = /** @class */ (function () {
     };
     SkipList.prototype["delete"] = function (data) {
     };
+    // returns boolean indicating whether given value exists in list
     SkipList.prototype.contains = function (data) {
+        var currentLevel = this.height() - 1;
+        var currentNode = this.head();
+        while (currentLevel >= 0) {
+            // check next node at current level for null
+            if (currentNode.next(currentLevel) == null) {
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for search value
+            else if (currentNode.next(currentLevel).value() == data) {
+                return true;
+            }
+            // check next node at current level for less than search value
+            else if (currentNode.next(currentLevel).value() < data) {
+                // advance to the next node at this level
+                currentNode = currentNode.next(currentLevel);
+            }
+            // next node was greater than search value
+            else {
+                // dropdown level
+                currentLevel--;
+            }
+        }
+        // value is not in list
         return false;
     };
     SkipList.prototype.get = function (data) {
         return null;
     };
-    //  Returns the max height of a skip list with n nodes.
+    // returns the max height of a skip list with n nodes
     SkipList.prototype.getMaxHeight = function (n) {
         if (n == 1) {
             return 1;
@@ -230,3 +256,5 @@ console.log("50 was added!");
 exampleSkipList.insert(47);
 console.log("47 was added!");
 console.log(exampleSkipList.size());
+console.log("contains 26?: " + exampleSkipList.contains(26));
+console.log("contains 50?: " + exampleSkipList.contains(50));

@@ -149,12 +149,14 @@ class SkipList<T>
         {
             this.growSkipList();
         }
+
+        // set current search level to maxmimum level available
         currentLevel = this.height() - 1;
 
         while( currentLevel >= 0 )
         {
              // check next node at current level for null
-            if( currentNode.nextNode[currentLevel] == null ) 
+            if( currentNode.next(currentLevel) == null ) 
             {
                  // current node may need ref at this level updated
                 nodesOutdatedRefs.push( currentNode );
@@ -163,10 +165,10 @@ class SkipList<T>
                 currentLevel--;
             }
             // check next node at current level for lesser value
-            else if( currentNode.nextNode[currentLevel].data < data )
+            else if( currentNode.next(currentLevel).data < data )
             {
                 // advance to the next node at this level
-                currentNode = currentNode.nextNode[currentLevel];
+                currentNode = currentNode.next(currentLevel);
             }
             // next node was greater or equal to value
             else
@@ -200,7 +202,7 @@ class SkipList<T>
         for( let i = newNode.height() - 1; i >= 0; i-- )
         {
             // add reference to newNode
-            newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
+            newNode.nextNode[i] = nodesOutdatedRefs[i].next(i);
 
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = newNode;
@@ -213,8 +215,40 @@ class SkipList<T>
 
     }
 
+    // returns boolean indicating whether given value exists in list
     public contains( data: T ): boolean
     {
+        let currentLevel: number = this.height() - 1;
+        let currentNode: SkipListNode<T> = this.head();
+
+        while( currentLevel >= 0 )
+        {
+            // check next node at current level for null
+            if( currentNode.next(currentLevel) == null ) 
+            {
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for search value
+            else if( currentNode.next(currentLevel).value() == data )
+            {
+                return true;
+            }
+            // check next node at current level for less than search value
+            else if( currentNode.next(currentLevel).value() < data )
+            {
+                // advance to the next node at this level
+                currentNode = currentNode.next(currentLevel);
+            }
+            // next node was greater than search value
+            else
+            {
+                // dropdown level
+                currentLevel--;
+            }
+        }
+
+        // value is not in list
         return false;
     }
 
@@ -223,7 +257,7 @@ class SkipList<T>
         return null;
     }
 
-    //  Returns the max height of a skip list with n nodes.
+    // returns the max height of a skip list with n nodes
     public getMaxHeight( n: number ): number
     {
         if( n == 1 )
@@ -332,3 +366,5 @@ console.log( "50 was added!" );
 exampleSkipList.insert(47);
 console.log( "47 was added!" );
 console.log( exampleSkipList.size() );
+console.log( "contains 26?: " + exampleSkipList.contains(26) );
+console.log( "contains 50?: " + exampleSkipList.contains(50) );
