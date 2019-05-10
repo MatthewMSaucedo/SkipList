@@ -138,10 +138,18 @@ class SkipList<T>
 
     public insert( data: T, height?: number): void
     {
-        let currentLevel: number = this.height() - 1;
+        let currentLevel: number;
         let currentNode: SkipListNode<T> = this.headNode;
         let nodesOutdatedRefs: Array<SkipListNode<T>> = new Array<SkipListNode<T>>();
         let newNode: SkipListNode<T>;
+
+        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
+        // you must increase the overall height of the skip list. 
+        if( Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height() )
+        {
+            this.growSkipList();
+        }
+        currentLevel = this.height() - 1;
 
         while( currentLevel >= 0 )
         {
@@ -175,28 +183,21 @@ class SkipList<T>
         if( height != undefined  )
         {
             // add node of specified height
-            newNode = new SkipListNode<T>( height , data);
+            newNode = new SkipListNode<T>( height, data );
         }
         else
         {
             // add node of randomized height
             let maxHeight = Math.max( this.getMaxHeight( this.numNodes ), this.height() );
-            newNode = new SkipListNode<T>( this.generateRandomHeight( maxHeight ), data);
+            newNode = new SkipListNode<T>( this.generateRandomHeight( maxHeight ), data );
         }
-        /*
-        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
-        // you must increase the overall height of the skip list. 
-        if( Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height() )
-        {
-            this.growSkipList();
-        }
-        */
+
         // reverse the outdated refs array so that their level needing to be updated
         // corresponds to their index in the array
         nodesOutdatedRefs = nodesOutdatedRefs.reverse();
         
         // update references of inserted node and outdated nodes
-        for( let i = newNode.height() - 1; i >= 0; i++ )
+        for( let i = newNode.height() - 1; i >= 0; i-- )
         {
             // add reference to newNode
             newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
@@ -207,7 +208,6 @@ class SkipList<T>
         this.numNodes++;
     }
 
-    // Update size member!!!
     public delete( data: T): void
     {
 
@@ -250,7 +250,7 @@ class SkipList<T>
 		}
 		
 		// 1/2 probability that function will be called again with increased height
-		if ( this.randomIntFromInterval( 1, 2 ) == 1)
+		if ( this.randomIntFromInterval( 1, 2 ) == 1 )
 		{
 			height = this.generateRandomHeightHelper(maxHeight, height + 1);
 		}
@@ -259,9 +259,31 @@ class SkipList<T>
 		return height;
     }
 
+    // increase size of skiplist by one when appropriate
     public growSkipList(): void
     {
+        let searchLevel = this.height() - 1;
+        let lastGrownNode: SkipListNode<T>;
 
+        // grow the head
+        let currentNode: SkipListNode<T> = this.head();
+        currentNode.grow();
+        lastGrownNode = currentNode;
+
+        // for each node at old maximum height, there is a 50% chance of increasing to new height
+        for( currentNode = currentNode.nextNode[searchLevel]; currentNode != null; currentNode = currentNode.nextNode[searchLevel] )
+        {
+            if( this.randomIntFromInterval( 1, 2 ) == 1 )
+            {
+                currentNode.grow();
+
+                // update reference from last grown node to this grown node
+                lastGrownNode.nextNode[searchLevel+1] = currentNode;
+
+                // update this node as the last grown node
+                lastGrownNode = currentNode;
+            }
+        }
     }
 
     public trimSkipList(): void
@@ -285,7 +307,28 @@ console.log("The exampleNode has a height of "
     + exampleNode.height() + ", and stores this data: " + exampleNode.value() );
 
     
-exampleSkipList.insert(5);
-exampleSkipList.insert(7);
-exampleSkipList.insert(6);
+exampleSkipList.insert(2);
+console.log( "2 was added!" );
+exampleSkipList.insert(4);
+console.log( "4 was added!" );
+exampleSkipList.insert(8);
+console.log( "8 was added!" );
+exampleSkipList.insert(10);
+console.log( "10 was added!" );
+exampleSkipList.insert(18);
+console.log( "18 was added!" );
+exampleSkipList.insert(20);
+console.log( "20 was added!" );
+exampleSkipList.insert(27);
+console.log( "27 was added!" );
+exampleSkipList.insert(30);
+console.log( "30 was added!" );
+exampleSkipList.insert(36);
+console.log( "36 was added!" );
+exampleSkipList.insert(41);
+console.log( "41 was added!" );
+exampleSkipList.insert(50);
+console.log( "50 was added!" );
+exampleSkipList.insert(47);
+console.log( "47 was added!" );
 console.log( exampleSkipList.size() );

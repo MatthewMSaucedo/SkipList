@@ -89,10 +89,16 @@ var SkipList = /** @class */ (function () {
         return this.headNode;
     };
     SkipList.prototype.insert = function (data, height) {
-        var currentLevel = this.height() - 1;
+        var currentLevel;
         var currentNode = this.headNode;
         var nodesOutdatedRefs = new Array();
         var newNode;
+        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
+        // you must increase the overall height of the skip list. 
+        if (Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height()) {
+            this.growSkipList();
+        }
+        currentLevel = this.height() - 1;
         while (currentLevel >= 0) {
             // check next node at current level for null
             if (currentNode.nextNode[currentLevel] == null) {
@@ -124,29 +130,18 @@ var SkipList = /** @class */ (function () {
             var maxHeight = Math.max(this.getMaxHeight(this.numNodes), this.height());
             newNode = new SkipListNode(this.generateRandomHeight(maxHeight), data);
         }
-        /*
-        // If inserting this node causes ⌈log2(n)⌉ to exceed the skip list’s current height,
-        // you must increase the overall height of the skip list.
-        if( Math.ceil(Math.log(this.numNodes) / Math.log(2)) > this.height() )
-        {
-            this.growSkipList();
-        }
-        */
         // reverse the outdated refs array so that their level needing to be updated
         // corresponds to their index in the array
         nodesOutdatedRefs = nodesOutdatedRefs.reverse();
-        console.log(" yeet ");
         // update references of inserted node and outdated nodes
-        for (var i = newNode.height() - 1; i >= 0; i++) {
+        for (var i = newNode.height() - 1; i >= 0; i--) {
             // add reference to newNode
             newNode.nextNode[i] = nodesOutdatedRefs[i].nextNode[i];
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = newNode;
         }
         this.numNodes++;
-        console.log(" yeet yizzle ");
     };
-    // Update size member!!!
     SkipList.prototype["delete"] = function (data) {
     };
     SkipList.prototype.contains = function (data) {
@@ -178,7 +173,24 @@ var SkipList = /** @class */ (function () {
         // this returns result of all recursive calls.
         return height;
     };
+    // increase size of skiplist by one when appropriate
     SkipList.prototype.growSkipList = function () {
+        var searchLevel = this.height() - 1;
+        var lastGrownNode;
+        // grow the head
+        var currentNode = this.head();
+        currentNode.grow();
+        lastGrownNode = currentNode;
+        // for each node at old maximum height, there is a 50% chance of increasing to new height
+        for (currentNode = currentNode.nextNode[searchLevel]; currentNode != null; currentNode = currentNode.nextNode[searchLevel]) {
+            if (this.randomIntFromInterval(1, 2) == 1) {
+                currentNode.grow();
+                // update reference from last grown node to this grown node
+                lastGrownNode.nextNode[searchLevel + 1] = currentNode;
+                // update this node as the last grown node
+                lastGrownNode = currentNode;
+            }
+        }
     };
     SkipList.prototype.trimSkipList = function () {
     };
@@ -193,7 +205,28 @@ var exampleNode = new SkipListNode(4, 7);
 var exampleSkipList = new SkipList();
 console.log("The exampleNode has a height of "
     + exampleNode.height() + ", and stores this data: " + exampleNode.value());
-exampleSkipList.insert(5);
-exampleSkipList.insert(7);
-exampleSkipList.insert(6);
+exampleSkipList.insert(2);
+console.log("2 was added!");
+exampleSkipList.insert(4);
+console.log("4 was added!");
+exampleSkipList.insert(8);
+console.log("8 was added!");
+exampleSkipList.insert(10);
+console.log("10 was added!");
+exampleSkipList.insert(18);
+console.log("18 was added!");
+exampleSkipList.insert(20);
+console.log("20 was added!");
+exampleSkipList.insert(27);
+console.log("27 was added!");
+exampleSkipList.insert(30);
+console.log("30 was added!");
+exampleSkipList.insert(36);
+console.log("36 was added!");
+exampleSkipList.insert(41);
+console.log("41 was added!");
+exampleSkipList.insert(50);
+console.log("50 was added!");
+exampleSkipList.insert(47);
+console.log("47 was added!");
 console.log(exampleSkipList.size());
