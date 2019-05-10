@@ -158,7 +158,7 @@ class SkipList<T>
              // check next node at current level for null
             if( currentNode.next(currentLevel) == null ) 
             {
-                 // current node may need ref at this level updated
+                // current node may need ref at this level updated
                 nodesOutdatedRefs.push( currentNode );
 
                 // dropdown level
@@ -210,9 +210,78 @@ class SkipList<T>
         this.numNodes++;
     }
 
+    // deletes first instance of data from SkipList (if present)
     public delete( data: T): void
     {
+        let currentLevel: number = this.height() - 1;
+        let currentNode: SkipListNode<T> = this.head();
+        let eraseNode: SkipListNode<T> = this.head();
+        let nodesOutdatedRefs: Array<SkipListNode<T>> = new Array<SkipListNode<T>>();
 
+        while( currentLevel >= 0 )
+        {
+            // check next node at current level for null
+            if( currentNode.next(currentLevel) == null ) 
+            {
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for search value
+            else if( currentNode.next(currentLevel).value() == data )
+            {
+                if( currentNode.next(currentLevel) == eraseNode  )
+                {
+                    // current node may need ref at this level updated
+                    nodesOutdatedRefs.push( currentNode );
+                }
+                // there is a double of the desired deleted value
+                // we must update to reflect the earlier instance
+                else
+                {
+                    // clear outdated Refs array
+                    nodesOutdatedRefs = [];
+
+                    // current node may need ref at this level updated
+                    nodesOutdatedRefs.push( currentNode );
+
+                    // set next node to potentially be erased
+                    eraseNode = currentNode.next(currentLevel);
+                }
+
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for less than search value
+            else if( currentNode.next(currentLevel).value() < data )
+            {
+                // advance to the next node at this level
+                currentNode = currentNode.next(currentLevel);
+            }
+            // next node was greater than search value
+            else
+            {
+                // dropdown level
+                currentLevel--;
+            }
+        }
+
+        // data to be erased did not appear in list
+        if( eraseNode == this.head() )
+        {
+            return;
+        }
+        
+        // reverse the outdated refs array so that their level needing to be updated
+        // corresponds to their index in the array
+        nodesOutdatedRefs = nodesOutdatedRefs.reverse();
+
+        // delete node by updating references
+        for( let i = eraseNode.height() - 1; i >= 0; i-- )
+        {
+            // update reference of outdated Node
+            nodesOutdatedRefs[i].nextNode[i] = eraseNode.next(i);
+        }
+        this.numNodes--;
     }
 
     // returns boolean indicating whether given value exists in list
@@ -254,7 +323,55 @@ class SkipList<T>
 
     public get( data: T ): SkipListNode<T>
     {
-        return null;
+        let currentLevel: number = this.height() - 1;
+        let currentNode: SkipListNode<T> = this.head();
+        let searchNode: SkipListNode<T> = this.head();
+
+        while( currentLevel >= 0 )
+        {
+            // check next node at current level for null
+            if( currentNode.next(currentLevel) == null ) 
+            {
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for search value
+            else if( currentNode.next(currentLevel).value() == data )
+            {
+                // there is a double of the desired search value
+                // we must update to reflect the earlier instance
+                if( currentNode.next(currentLevel) != searchNode  )
+                {           
+                    // set next node to potentially be desired node
+                    searchNode = currentNode.next(currentLevel);
+                }
+
+                // dropdown level
+                currentLevel--;
+            }
+            // check next node at current level for less than search value
+            else if( currentNode.next(currentLevel).value() < data )
+            {
+                // advance to the next node at this level
+                currentNode = currentNode.next(currentLevel);
+            }
+            // next node was greater than search value
+            else
+            {
+                // dropdown level
+                currentLevel--;
+            }
+        }
+
+        // data searched for did not appear in list
+        if( searchNode == this.head() )
+        {
+            return null;
+        }
+        else
+        {
+            return searchNode;
+        }
     }
 
     // returns the max height of a skip list with n nodes
@@ -320,11 +437,6 @@ class SkipList<T>
         }
     }
 
-    public trimSkipList(): void
-    {
-
-    }
-
     // returns random number from min to max, inclusive
     public randomIntFromInterval( min: number , max: number ): number
     {
@@ -332,8 +444,8 @@ class SkipList<T>
     }
 }
 
-
-// MAIN
+/*
+// testing
 let exampleNode: SkipListNode<number> = new SkipListNode<number>( 4, 7 );
 let exampleSkipList: SkipList<number> = new SkipList<number>();
 
@@ -367,4 +479,10 @@ exampleSkipList.insert(47);
 console.log( "47 was added!" );
 console.log( exampleSkipList.size() );
 console.log( "contains 26?: " + exampleSkipList.contains(26) );
-console.log( "contains 50?: " + exampleSkipList.contains(50) );
+console.log( "contains 27?: " + exampleSkipList.contains(27) );
+console.log( "DELETING 27..." );
+exampleSkipList.delete(27);
+console.log( "Success?: " + !exampleSkipList.contains(27) );
+console.log( exampleSkipList.size() );
+console.log("\nTEST OF get():\nget(18)? The value returned is: " + exampleSkipList.get(18).value() );
+*/
