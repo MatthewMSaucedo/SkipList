@@ -313,6 +313,22 @@ var SkipList = /** @class */ (function () {
     SkipList.prototype.randomIntFromInterval = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
     };
+    SkipList.prototype.referenceCheck = function (s, level, values) {
+        var temp = s.head();
+        for (var i = 0; i < values.length; i++) {
+            temp = temp.next(level);
+            if (temp.value().compareTo(values[i]) != 0) {
+                return false;
+            }
+        }
+        // One final check to ensure this is the end of the list on this level.
+        if (temp.next(level) == null) {
+            console.log("Reference check: PASS");
+            return true;
+        }
+        console.log("Reference check: fail whale :(");
+        return false;
+    };
     return SkipList;
 }());
 /*
@@ -356,4 +372,18 @@ exampleSkipList.delete(27);
 console.log( "Success?: " + !exampleSkipList.contains(27) );
 console.log( exampleSkipList.size() );
 console.log("\nTEST OF get():\nget(18)? The value returned is: " + exampleSkipList.get(18).value() );
-*/ 
+*/
+var s = new SkipList(3);
+s.insert(10, 1);
+s.insert(20, 1);
+s.insert(3, 2);
+s.insert(15, 1);
+s.insert(5, 1);
+// Verify each level of the skip list is connected as indicated.
+var level;
+var success = true;
+success = success && s.referenceCheck(s, level = 0, [3, 5, 10, 15, 20]);
+success = success && s.referenceCheck(s, level = 1, [3]);
+success = success && s.referenceCheck(s, level = 2, []);
+success = success && s.referenceCheck(s, level = 20, []);
+console.log(success ? "Hooray!" : "fail whale :(");
