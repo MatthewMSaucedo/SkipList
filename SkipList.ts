@@ -207,6 +207,8 @@ class SkipList<T>
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = newNode;
         }
+
+        // account for added node
         this.numNodes++;
     }
 
@@ -281,6 +283,8 @@ class SkipList<T>
             // update reference of outdated Node
             nodesOutdatedRefs[i].nextNode[i] = eraseNode.next(i);
         }
+
+        // account for deleted node
         this.numNodes--;
     }
 
@@ -403,7 +407,7 @@ class SkipList<T>
 		// 1/2 probability that function will be called again with increased height
 		if ( this.randomIntFromInterval( 1, 2 ) == 1 )
 		{
-			height = this.generateRandomHeightHelper(maxHeight, height + 1);
+			height = this.generateRandomHeightHelper( maxHeight, height + 1);
 		}
 		
 		// this returns result of all recursive calls.
